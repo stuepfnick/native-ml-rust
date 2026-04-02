@@ -1,3 +1,5 @@
+![Build Status](https://github.com/stuepfnick/native-ml-rust/actions/workflows/rust.yml/badge.svg)
+
 # native-ml-rust
 
 A neural network built from scratch in **Rust**, optimized for **Apple Silicon (M1 Pro)**.

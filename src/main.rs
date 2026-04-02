@@ -2,7 +2,7 @@ mod neuron; // Deklares the module for the neuron, which contains the implementa
 mod layer; // Deklares the module for the layer, which contains the implementation of the Layer struct and its methods
 
 use layer::Layer; // Imports the struct for convenient usage in main
-use neuron::FlexibleNeuron; // Imports the struct for convenient usage in main
+use neuron::Neuron; // Imports the struct for convenient usage in main
 
 fn main() {
     
@@ -75,7 +75,7 @@ fn test_layer(my_layer: &Layer) {
 }
 
 fn train_neuron(iterations: usize) {
-    let mut my_neuron = FlexibleNeuron::new(2); // Creates a neuron with 2 inputs
+    let mut my_neuron = Neuron::new(2); // Creates a neuron with 2 inputs
 
     test_neuron(&my_neuron); // Tests the neuron before training to see initial predictions
 
@@ -97,7 +97,7 @@ fn train_neuron(iterations: usize) {
     test_neuron(&my_neuron); // Tests the neuron after training to see how predictions have improved
 }
 
-fn test_neuron(my_neuron: &FlexibleNeuron) {
+fn test_neuron(my_neuron: &Neuron) {
     let test_inputs = [
         [0.0, 0.0],
         [0.0, 1.0],

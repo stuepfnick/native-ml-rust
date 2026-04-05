@@ -13,6 +13,9 @@ impl Network {
     ///                   The first element is the input size, the last element is the output size,
     ///                   and the elements in between are the sizes of the hidden layers.
     pub fn new(layer_sizes: &[usize]) -> Self {
+        if layer_sizes.len() < 2 {
+            panic!("Network must have at least an input layer and an output layer");
+        }
         let layers = layer_sizes
             .windows(2)
             .map(|w| Layer::new(w[0], w[1]))
@@ -42,7 +45,8 @@ impl Network {
     /// # Returns
     /// A vector of vectors of f32 representing the activations of each layer, including the input layer as the first element.
     fn forward(&self, inputs: &[f32]) -> Vec<Vec<f32>> {
-        let mut activations = vec![inputs.to_vec()]; // Start with the input layer as the first activation
+        let mut activations = Vec::with_capacity(self.layers.len() + 1);
+        activations.push(inputs.to_vec()); // Start with the input layer as the first activation
         let mut current = inputs.to_vec();
 
         for layer in &self.layers {
@@ -69,8 +73,9 @@ impl Network {
             .collect();
 
         for (i, layer) in self.layers.iter_mut().enumerate().rev() {
-            let inputs = &activations[i]; // Inputs to the current layer are the activations of the previous layer
-            current_errors = layer.update(inputs, &current_errors, learning_rate);
+            let inputs = &activations[i];     // activations of the previous layer = inputs to this layer
+            let outputs = &activations[i + 1]; // activations of this layer = already computed outputs
+            current_errors = layer.update(inputs, outputs, &current_errors, learning_rate);
         }
     }
 
@@ -92,7 +97,7 @@ impl Network {
                 let x = x_step as f32 / 20.0;
                 
                 // query the network for this (x, y) input
-                let output = self.predict(&vec![x, y])[0];
+                let output = self.predict(&[x, y])[0];
                 
                 // map output in [0.0, 1.0] to block characters by brightness
                 let symbol = match output {

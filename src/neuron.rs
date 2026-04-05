@@ -35,8 +35,8 @@ impl Neuron {
     /// * A f32 representing the output value after applying the activation function.
     pub fn predict(&self, inputs: &[f32]) -> f32 {
         let mut sum = self.bias;
-        for i in 0..self.weights.len() {
-            sum += inputs[i] * self.weights[i];
+        for (w, i) in self.weights.iter().zip(inputs.iter()) {
+            sum += w * i; // weight * input
         }
         Activation::sigmoid(sum)
     }

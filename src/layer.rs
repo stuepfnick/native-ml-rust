@@ -44,12 +44,11 @@ impl Layer {
         }
     }
 
-    pub fn update(&mut self, inputs: &[f32], current_errors: &[f32], learning_rate: f32) -> Vec<f32> {
+    pub fn update(&mut self, inputs: &[f32], outputs: &[f32], current_errors: &[f32], learning_rate: f32) -> Vec<f32> {
         let mut next_errors = vec![0.0; inputs.len()];
 
         for (i, neuron) in self.neurons.iter_mut().enumerate() {
-            let output = neuron.predict(inputs);
-            let gradient = current_errors[i] * Activation::sigmoid_derivative(output);
+            let gradient = current_errors[i] * Activation::sigmoid_derivative(outputs[i]);
 
             for (j, weight) in neuron.weights.iter().enumerate() {
                 next_errors[j] += gradient * weight;

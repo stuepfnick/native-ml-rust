@@ -1,7 +1,7 @@
-mod activation; // Deklares the module for activation functions, which contains the implementation of the Activation struct and its method
-mod neuron; // Deklares the module for the neuron, which contains the implementation of the FlexibleNeuron struct and its methods
-mod layer; // Deklares the module for the layer, which contains the implementation of the Layer struct and its methods
-mod network; // Deklares the module for the network, which contains the implementation of the Network struct and its methods
+mod activation; // Declares the module for activation functions, which contains the implementation of the Activation struct and its method
+mod neuron; // Declares the module for the neuron, which contains the implementation of the Neuron struct and its methods
+mod layer; // Declares the module for the layer, which contains the implementation of the Layer struct and its methods
+mod network; // Declares the module for the network, which contains the implementation of the Network struct and its methods
 
 use {layer::Layer, neuron::Neuron, network::Network}; // Imports the struct for convenient usage in main
 

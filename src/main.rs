@@ -34,6 +34,7 @@ fn main() {
 
      println!("Mode: {}, Iterations: {}, Learning Rate: {}", mode, iterations, learning_rate);      
 
+    let start = std::time::Instant::now();
     if mode == "neuron" {
         train_neuron(iterations, learning_rate);
     } else if mode == "layer" {
@@ -41,12 +42,14 @@ fn main() {
     } else {
         train_network(iterations, learning_rate);
     }
+    println!("Training duration: {:?}", start.elapsed());
 }
 
 fn train_network(iterations: usize, learning_rate: f32) {
     println!("Training a network...");
 
-    let mut my_network = Network::new(&[2, 2, 1]); // Creates a network with 2 input neurons, 1 hidden layer with 3 neurons, and 1 output neuron
+    // Creates a network with 2 input neurons, 1 hidden layer with 3 neurons, and 1 output neuron
+    let mut my_network = Network::new(&[2, 3, 1]); 
 
     test_network(&my_network); // Tests the network before training to see initial predictions
 
@@ -81,6 +84,7 @@ fn test_network(my_network: &Network) {
         let outputs = my_network.predict(inputs);
         println!("Input: {:?} => Output: {:.4}", inputs, outputs[0]);
     }
+    my_network.visualize(); // Visualizes the network structure and weights after testing
 }
 
 fn train_layer(iterations: usize, learning_rate: f32) {

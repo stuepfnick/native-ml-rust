@@ -1,4 +1,4 @@
-use crate::Neuron;
+use crate::{activation::Activation, neuron::Neuron};
 
 /// A layer of neurons in a neural network.
 pub struct Layer {
@@ -10,11 +10,11 @@ impl Layer {
     /// Create a new layer with the specified number of neurons and inputs.
     ///
     /// # Arguments
-    /// * `num_neurons` - The number of neurons in the layer.
     /// * `num_inputs` - The number of inputs to each neuron, which determines the number of weights.
+    /// * `num_neurons` - The number of neurons in the layer.
     /// # Returns
     /// * A new instance of Layer with the specified number of neurons, each initialized
-    pub fn new(num_neurons: usize, num_inputs: usize) -> Self {
+    pub fn new(num_inputs: usize, num_neurons: usize) -> Self {
         let neurons = (0..num_neurons)
             .map(|_| Neuron::new(num_inputs))
             .collect();
@@ -42,5 +42,26 @@ impl Layer {
         for (neuron, &target) in self.neurons.iter_mut().zip(targets.iter()) {
             neuron.train(inputs, target, learning_rate);
         }
+    }
+
+    pub fn update(&mut self, inputs: &[f32], current_errors: &[f32], learning_rate: f32) -> Vec<f32> {
+        let mut next_errors = vec![0.0; inputs.len()];
+
+        for (i, neuron) in self.neurons.iter_mut().enumerate() {
+            let output = neuron.predict(inputs);
+            let gradient = current_errors[i] * Activation::sigmoid_derivative(output);
+
+            for (j, weight) in neuron.weights.iter().enumerate() {
+                next_errors[j] += gradient * weight;
+            }
+
+            neuron.update(inputs, gradient, learning_rate);
+        }
+        next_errors
+    }
+
+    pub fn print(&self) {
+            println!("Layer: {} Neuron Weights and Biases:", self.neurons.len());
+        self.neurons.iter().for_each(|n| n.print());
     }
 }

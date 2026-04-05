@@ -82,25 +82,25 @@ impl Network {
     pub fn visualize(&self) {
         println!("\n--- Decision Landscape ---");
         
-        // y-Achse von 1.0 runter zu 0.0
+        // y-axis from 1.0 down to 0.0
         for y_step in (0..=10).rev() {
             let y = y_step as f32 / 10.0;
             print!("{:.1} | ", y);
 
-            // x-Achse von 0.0 bis 1.0
+            // x-axis from 0.0 to 1.0
             for x_step in 0..=20 {
                 let x = x_step as f32 / 20.0;
                 
-                // Wir nutzen predict für die Abfrage
+                // query the network for this (x, y) input
                 let output = self.predict(&vec![x, y])[0];
                 
-                // Mapping von 0.0-1.0 auf Zeichen-Helligkeit
+                // map output in [0.0, 1.0] to block characters by brightness
                 let symbol = match output {
-                    v if v > 0.9 => "█", // Ganz sicher 1
+                    v if v > 0.9 => "█", // fully 1
                     v if v > 0.7 => "▓",
-                    v if v > 0.4 => "▒", // Der "unsichere" 0.5 Bereich
+                    v if v > 0.4 => "▒", // The "uncertain" 0.5 range
                     v if v > 0.1 => "░",
-                    _            => " ", // Ganz sicher 0
+                    _            => " ", // fully 0
                 };
                 print!("{}", symbol);
             }

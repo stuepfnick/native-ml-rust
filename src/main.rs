@@ -1,16 +1,19 @@
 mod activation; // Declares the module for activation functions, which contains the implementation of the Activation struct and its method
 mod neuron; // Declares the module for the neuron, which contains the implementation of the Neuron struct and its methods
 mod layer; // Declares the module for the layer, which contains the implementation of the Layer struct and its methods
-mod network; // Declares the module for the network, which contains the implementation of the Network struct and its methods
+mod network; // Legacy Network (Vec<Layer>)
+mod network_flat; // Flat params + LayerSpec layout
+mod layer_spec; // LayerSpec + build_layer_specs (flat buffer layout per layer)
+mod neuron_spec; // NeuronSpec (param slice for one output neuron; uses LayerSpec for addressing)
 
-use {layer::Layer, neuron::Neuron, network::Network}; // Imports the struct for convenient usage in main
+use {layer::Layer, neuron::Neuron, network::Network, network_flat::NetworkFlat}; // Imports the struct for convenient usage in main
 
 fn main() {
 
     let args: Vec<String> = std::env::args().collect();
 
     // set default values
-    let mut mode = "network".to_string(); // Default mode is "network"
+    let mut mode = "flat".to_string(); // Default: NetworkFlat (single params buffer)
     let mut iterations = 10000; // Default number of iterations for training
     let mut learning_rate = 0.1; // Default learning rate for training
 
@@ -39,6 +42,8 @@ fn main() {
         train_neuron(iterations, learning_rate);
     } else if mode == "layer" {
         train_layer(iterations, learning_rate);
+    } else if mode == "flat" {
+        train_network_flat(iterations, learning_rate);
     } else {
         train_network(iterations, learning_rate);
     }
@@ -48,8 +53,8 @@ fn main() {
 fn train_network(iterations: usize, learning_rate: f32) {
     println!("Training a network...");
 
-    // Creates a network with 2 input neurons, 1 hidden layer with 3 neurons, and 1 output neuron
-    let mut my_network = Network::new(&[2, 3, 1]); 
+    let layer_sizes = [2usize, 3, 1];
+    let mut my_network = Network::new(&layer_sizes);
 
     test_network(&my_network); // Tests the network before training to see initial predictions
 
@@ -69,6 +74,52 @@ fn train_network(iterations: usize, learning_rate: f32) {
     }
 
     test_network(&my_network); // Tests the network after training to see how predictions have improved
+}
+
+fn train_network_flat(iterations: usize, learning_rate: f32) {
+    println!("Training NetworkFlat (XOR, flat `params`, architecture [2, 3, 1])...");
+
+    let layer_sizes = [2usize, 3, 1];
+    let mut flat = NetworkFlat::new(&layer_sizes);
+
+    test_network_flat(&flat);
+
+    let training_data = [
+        ([0.0, 0.0], [0.0]), // XOR: 0
+        ([0.0, 1.0], [1.0]), // XOR: 1
+        ([1.0, 0.0], [1.0]), // XOR: 1
+        ([1.0, 1.0], [0.0]), // XOR: 0
+    ];
+
+    println!(
+        "Training flat network ({} passes over the full XOR set, lr={})...",
+        iterations, learning_rate
+    );
+
+    for _ in 0..iterations {
+        for (inputs, targets) in training_data.iter() {
+            flat.train(inputs, targets, learning_rate);
+        }
+    }
+
+    test_network_flat(&flat);
+}
+
+fn test_network_flat(flat: &NetworkFlat) {
+    let test_inputs = [
+        [0.0, 0.0],
+        [0.0, 1.0],
+        [1.0, 0.0],
+        [1.0, 1.0],
+    ];
+    println!("--- NetworkFlat ---");
+    flat.print();
+
+    for inputs in test_inputs.iter() {
+        let outputs = flat.predict(inputs);
+        println!("Input: {:?} => Output: {:.4}", inputs, outputs[0]);
+    }
+    flat.visualize();
 }
 
 fn test_network(my_network: &Network) {
